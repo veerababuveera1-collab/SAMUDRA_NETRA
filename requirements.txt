@@ -1,0 +1,21 @@
+# --- Core Web Framework ---
+streamlit>=1.31.0
+python-dotenv>=1.0.0
+
+# --- Azure & Cloud Integration ---
+azure-cosmos>=4.6.0
+
+# --- AI & Computer Vision ---
+ultralytics>=8.1.0        # For YOLOv8
+opencv-python-headless     # Image processing for UI-less environments
+numpy>=1.24.0
+pandas>=2.0.0
+
+# --- Signal Processing & Analytics ---
+scipy>=1.11.0             # For Sonar signal analysis
+matplotlib>=3.8.0         # For SLR Charts and Red Zone plotting
+plotly>=5.18.0            # For interactive dashboards
+
+# --- Security & Utils ---
+cryptography>=42.0.0      # Extra security layer for Audit Chain
+requests>=2.31.0
