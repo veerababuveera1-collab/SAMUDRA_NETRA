@@ -117,13 +117,16 @@ AWRS_CONTACTS = [
     {"id":"DARK-003", "lat":15.6, "lon":82.4,"speed":18,"threat":0.50,"piracy":0.35,"dark":True, "roe":"ELECTRONIC JAM","rcls":"roe-ecm","col":"#FF8800","act":"ECM jamming active"},
 ]
 
+# FIX: xaxis/yaxis removed from PLOT_BG base dict.
+# Passing **PLOT_BG + xaxis=dict(...) caused:
+# TypeError: got multiple values for keyword argument 'xaxis'
+_AX = dict(gridcolor="#0D1E2E", zerolinecolor="#0D1E2E", linecolor="#1A3040")
+
 PLOT_BG = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(5,10,14,0.95)",
     font=dict(family="Courier New", color="#5A8FA8", size=11),
     margin=dict(l=48,r=16,t=36,b=32),
-    xaxis=dict(gridcolor="#0D1E2E",zerolinecolor="#0D1E2E",linecolor="#1A3040"),
-    yaxis=dict(gridcolor="#0D1E2E",zerolinecolor="#0D1E2E",linecolor="#1A3040"),
     legend=dict(bgcolor="rgba(0,0,0,0)",bordercolor="#1A3040",borderwidth=1,font=dict(size=10)),
 )
 
@@ -158,8 +161,8 @@ def seas_fig():
     fig.add_trace(go.Scatter(x=gens,y=yolo, name="YOLOv8 V4", line=dict(color="#9966FF",width=1.5),fill="tozeroy",fillcolor="rgba(153,102,255,.05)",mode="lines"))
     fig.update_layout(**PLOT_BG, height=280,
         title=dict(text="Self-Evolution Convergence (60 Generations)",font=dict(color="#00FFAA",size=12)),
-        yaxis=dict(**PLOT_BG["yaxis"],ticksuffix="%",range=[89,101]),
-        xaxis=dict(**PLOT_BG["xaxis"],title="Generation"))
+        yaxis=dict(**_AX, ticksuffix="%", range=[89,101]),
+        xaxis=dict(**_AX, title="Generation"))
     return fig
 
 def slr_fig():
@@ -176,7 +179,8 @@ def slr_fig():
     fig.add_hrect(y0=45,y1=70,fillcolor="rgba(255,0,85,.06)",line_width=0)
     fig.update_layout(**PLOT_BG, height=260,
         title=dict(text="Sea Level Rise Forecast + Red Zone",font=dict(color="#00CCFF",size=12)),
-        yaxis=dict(**PLOT_BG["yaxis"],ticksuffix=" mm"))
+        yaxis=dict(**_AX, ticksuffix=" mm"),
+        xaxis=dict(**_AX))
     return fig
 
 def qaie_fig():
@@ -184,21 +188,30 @@ def qaie_fig():
     counts=[28,8,5,3,2]
     colors=["#00FFAA","#00CCFF","#FFCC00","#FF0055","#9966FF"]
     fig=go.Figure(go.Bar(x=states,y=counts,marker_color=colors,marker_line_width=0))
-    fig.update_layout(**PLOT_BG,height=240,
+    fig.update_layout(**PLOT_BG, height=240,
         title=dict(text="QAIE Quantum State Distribution (4.7× speedup)",font=dict(color="#9966FF",size=12)),
-        bargap=0.3)
+        bargap=0.3,
+        xaxis=dict(**_AX),
+        yaxis=dict(**_AX))
     return fig
 
 def model_fig():
-    models=["YOLOv8 V4","SonarCNN V4","Storm PINN","Anomaly IF","AWRS Bayes"]
-    pcts=np.clip([94,97,87,89,99]+np.random.uniform(-2,2,5),0,100)
-    colors=["#00FFAA","#9966FF","#00CCFF","#FFCC00","#FF0055"]
-    fig=go.Figure(go.Bar(y=models,x=pcts,orientation="h",marker_color=colors,marker_line_width=0,
-        text=[f"{p:.0f}%" for p in pcts],textposition="inside",
-        textfont=dict(color="#050A0E",family="Courier New",size=10)))
-    fig.update_layout(**PLOT_BG,height=220,
-        title=dict(text="AI Model Activity",font=dict(color="#00FFAA",size=12)),
-        xaxis=dict(**PLOT_BG["xaxis"],ticksuffix="%",range=[0,105]))
+    models = ["YOLOv8 V4","SonarCNN V4","Storm PINN","Anomaly IF","AWRS Bayes"]
+    # FIX: Python list + numpy array TypeError → use np.array explicitly
+    base = np.array([94, 97, 87, 89, 99], dtype=float)
+    pcts = np.clip(base + np.random.uniform(-2, 2, 5), 0, 100)
+    colors = ["#00FFAA","#9966FF","#00CCFF","#FFCC00","#FF0055"]
+    fig = go.Figure(go.Bar(
+        y=models, x=pcts, orientation="h",
+        marker_color=colors, marker_line_width=0,
+        text=[f"{p:.0f}%" for p in pcts], textposition="inside",
+        textfont=dict(color="#050A0E", family="Courier New", size=10),
+    ))
+    # FIX: xaxis no longer in PLOT_BG — safe to pass directly
+    fig.update_layout(**PLOT_BG, height=220,
+        title=dict(text="AI Model Activity", font=dict(color="#00FFAA",size=12)),
+        xaxis=dict(**_AX, ticksuffix="%", range=[0, 105]),
+        yaxis=dict(**_AX))
     return fig
 
 # ── TACTICAL MAP ──────────────────────────────────────────────────────────────
