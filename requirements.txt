@@ -1,27 +1,42 @@
-# --- Core Web Framework ---
-streamlit>=1.31.0
+# ══════════════════════════════════════════════════════
+#  OIMS V4 — SAMUDRA NETRA X
+#  requirements.txt  (Streamlit Cloud — corrected)
+#
+#  Fixes applied:
+#   1. Removed duplicate: streamlit (>=1.31.0 AND >=1.32.0 → kept >=1.32.0)
+#   2. Removed duplicate: numpy     (appeared 2× → kept once)
+#   3. Removed duplicate: pandas    (appeared 2× → kept once)
+#   4. Removed duplicate: plotly    (>=5.18.0 AND >=5.20.0 → kept >=5.20.0)
+#   5. Added version pin: opencv-python-headless>=4.9.0
+#   6. Moved heavy packages to optional — not needed by dashboard
+#      (ultralytics alone causes Streamlit Cloud 10-min build timeout)
+# ══════════════════════════════════════════════════════
+
+# ── Core dashboard ─────────────────────────────────────
+streamlit>=1.32.0
 python-dotenv>=1.0.0
 
-# --- Azure & Cloud Integration ---
-azure-cosmos>=4.6.0
-
-# --- AI & Computer Vision ---
-ultralytics>=8.1.0        # For YOLOv8
-opencv-python-headless     # Image processing for UI-less environments
-numpy>=1.24.0
-pandas>=2.0.0
-
-# --- Signal Processing & Analytics ---
-scipy>=1.11.0             # For Sonar signal analysis
-matplotlib>=3.8.0         # For SLR Charts and Red Zone plotting
-plotly>=5.18.0            # For interactive dashboards
-
-# --- Security & Utils ---
-cryptography>=42.0.0      # Extra security layer for Audit Chain
-requests>=2.31.0
-streamlit>=1.32.0
+# ── Map & visualisation ────────────────────────────────
 folium>=0.16.0
 streamlit-folium>=0.20.0
 plotly>=5.20.0
-pandas>=2.0.0
+
+# ── Data ───────────────────────────────────────────────
 numpy>=1.24.0
+pandas>=2.0.0
+
+# ── HTTP (used by folium tile fetching) ────────────────
+requests>=2.31.0
+
+# ══════════════════════════════════════════════════════
+#  OPTIONAL — uncomment only if your app explicitly
+#  imports these. Leaving them active causes build
+#  timeouts on Streamlit Cloud free tier.
+# ══════════════════════════════════════════════════════
+
+# azure-cosmos>=4.6.0            # only if Cosmos DB connected
+# scipy>=1.11.0                  # only if sonar FFT processing used
+# matplotlib>=3.8.0              # plotly already handles all charts
+# cryptography>=42.0.0           # SHA-256 is stdlib hashlib — not needed
+# ultralytics>=8.1.0             # YOLOv8 — AI server only, not dashboard
+# opencv-python-headless>=4.9.0  # only if image processing used in app
