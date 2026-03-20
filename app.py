@@ -135,6 +135,107 @@ p,div,span,td,th,.stMarkdown{font-family:'Segoe UI',Arial,sans-serif!important}
 </style>
 """, unsafe_allow_html=True)
 
+
+def fig_ocean_map():
+    theta = np.linspace(0, 2*np.pi, 60)
+
+    f = go.Figure()
+
+    # Ocean bg
+    f.add_shape(type="rect", x0=44,y0=-6,x1=101,y1=31,
+        fillcolor="rgba(4,12,20,.95)", line_width=0, layer="below")
+
+    # Grid lines
+    for lat in range(0,30,5):
+        f.add_shape(type="line",x0=44,y0=lat,x1=101,y1=lat,
+            line=dict(color="rgba(26,48,64,.5)",width=.5))
+    for lon in range(50,105,5):
+        f.add_shape(type="line",x0=lon,y0=-6,x1=lon,y1=31,
+            line=dict(color="rgba(26,48,64,.5)",width=.5))
+
+    # EEZ boundary
+    eez_lat = 12+7.2*np.sin(theta)
+    eez_lon = 72+9.5*np.cos(theta)
+    f.add_trace(go.Scatter(x=eez_lon,y=eez_lat,mode="lines",
+        line=dict(color="rgba(0,204,255,.45)",width=1,dash="dot"),
+        name="India EEZ",fill="toself",fillcolor="rgba(0,204,255,.03)",
+        hoverinfo="name"))
+
+    # Cyclone zone
+    cy_lat=13.5+2.4*np.sin(theta); cy_lon=76.0+2.4*np.cos(theta)
+    f.add_trace(go.Scatter(x=cy_lon,y=cy_lat,mode="lines",
+        line=dict(color="rgba(255,136,0,.6)",width=1,dash="dash"),
+        fill="toself",fillcolor="rgba(255,136,0,.07)",
+        name="Cyclone zone",hoverinfo="name"))
+
+    # Oil spill
+    f.add_trace(go.Scatter(x=[73.2],y=[10.8],mode="markers",
+        marker=dict(color="rgba(255,0,85,.6)",size=20,symbol="circle",
+                    line=dict(color="#FF0055",width=1.5)),
+        name="Oil spill",text=["Oil spill — 14.2 km2"],
+        hovertemplate="%{text}<extra></extra>"))
+
+    # Threat contacts
+    tc = [
+        (72.1,8.2, "CONTACT-A","#00FFAA",10,"diamond","OBSERVE"),
+        (74.8,12.4,"CONTACT-B","#FFCC00",14,"diamond","WARN"),
+        (51.0,11.5,"CONTACT-C","#FF0055",18,"diamond","KINETIC"),
+        (50.2,13.1,"CONTACT-D","#FF0055",18,"diamond","KINETIC"),
+        (82.4,15.6,"DARK-003", "#FF8800",14,"diamond","ELEC JAM"),
+    ]
+    for lon,lat,nm,col,sz,sym,roe in tc:
+        f.add_trace(go.Scatter(
+            x=[lon+np.random.uniform(-.15,.15)],
+            y=[lat+np.random.uniform(-.1,.1)],
+            mode="markers+text",
+            marker=dict(color=col,size=sz,symbol=sym,
+                        line=dict(color=col,width=1)),
+            text=[nm],textposition="top center",
+            textfont=dict(color=col,size=9,family="Courier New"),
+            name=nm,showlegend=False,
+            hovertemplate="<b>"+nm+"</b><br>ROE: "+roe+"<extra></extra>"))
+
+    # Friendly
+    f.add_trace(go.Scatter(
+        x=[73.5,71.8,76.3],y=[14.2,10.5,9.9],
+        mode="markers+text",
+        marker=dict(color="#1D9E75",size=12,symbol="triangle-up",
+                    line=dict(color="#00FFAA",width=1.5)),
+        text=["INS-Delhi","AUV-007","CG-Kochi"],
+        textposition="top center",
+        textfont=dict(color="#1D9E75",size=9,family="Courier New"),
+        name="Friendly",showlegend=True,
+        hovertemplate="<b>%{text}</b><br>Friendly vessel<extra></extra>"))
+
+    f.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(4,12,20,.95)",
+        font=dict(family="Courier New",color="#5A8FA8",size=11),
+        margin=dict(l=44,r=12,t=36,b=28),
+        height=500,
+        title=dict(text="Live tactical map (Plotly) — Indian Ocean",
+                   font=dict(color="#00FFAA",size=13)),
+        xaxis=dict(gridcolor="rgba(26,48,64,.8)",zerolinecolor="rgba(26,48,64,.8)",
+                   linecolor="#1A3040",tickcolor="#1A3040",
+                   tickfont=dict(color="#5A8FA8",size=10,family="Courier New"),
+                   title="Longitude",range=[44,101]),
+        yaxis=dict(gridcolor="rgba(26,48,64,.8)",zerolinecolor="rgba(26,48,64,.8)",
+                   linecolor="#1A3040",tickcolor="#1A3040",
+                   tickfont=dict(color="#5A8FA8",size=10,family="Courier New"),
+                   title="Latitude",range=[-6,31],scaleanchor="x",scaleratio=1),
+        legend=dict(bgcolor="rgba(5,10,14,.85)",bordercolor="#1A3040",
+                    borderwidth=1,font=dict(color="#5A8FA8",size=10)),
+        annotations=[
+            dict(x=72,y=11,text="Indian Ocean",showarrow=False,
+                 font=dict(color="rgba(90,143,168,.3)",size=16,family="Courier New")),
+            dict(x=58,y=14,text="Arabian Sea",showarrow=False,
+                 font=dict(color="rgba(90,143,168,.22)",size=12,family="Courier New")),
+            dict(x=88,y=14,text="Bay of Bengal",showarrow=False,
+                 font=dict(color="rgba(90,143,168,.22)",size=12,family="Courier New")),
+        ])
+    return f
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTANTS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -393,8 +494,11 @@ with tabs[0]:
                     unsafe_allow_html=True)
         if FOLIUM_OK:
             st_folium(build_map(), width=None, height=510, returned_objects=[])
+        elif PLOTLY_OK:
+            st.plotly_chart(fig_ocean_map(), use_container_width=True,
+                            config={"displayModeBar": False})
         else:
-            st.info("Install: pip install folium streamlit-folium")
+            st.warning("Install plotly or folium streamlit-folium")
 
     with cR:
         st.markdown('<div class="sec-hdr">Alert feed</div>', unsafe_allow_html=True)
@@ -808,6 +912,44 @@ with tabs[5]:
                     unsafe_allow_html=True)
         st.plotly_chart(fig_perf(), use_container_width=True,
                         config={"displayModeBar":False})
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SIDEBAR + AUTO-REFRESH
+# ─────────────────────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown(
+        "<div style='font-family:Courier New,monospace;font-size:13px;"
+        "color:#00FFAA;letter-spacing:.08em;margin-bottom:12px'>OIMS V4 CONTROLS</div>",
+        unsafe_allow_html=True)
+
+    auto_refresh = st.toggle("Live auto-refresh", value=False)
+    refresh_rate = st.slider("Interval (seconds)", 3, 30, 5, step=1)
+
+    st.markdown("<hr style='border-color:#1A3040'>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='font-family:Courier New,monospace;font-size:11px;"
+        "color:#5A8FA8;line-height:1.9'>"
+        "Version: <span style='color:#00FFAA'>V4.0</span><br>"
+        "Region: <span style='color:#C8D8E8'>Indian Ocean</span><br>"
+        "Modules: <span style='color:#00FFAA'>15 active</span><br>"
+        "Innovations: <span style='color:#9966FF'>9 patent-level</span><br>"
+        "Chain: <span style='color:#00CCFF'>SHA-256 verified</span>"
+        "</div>",
+        unsafe_allow_html=True)
+
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    if st.button("Force Refresh", use_container_width=True):
+        st.session_state.vessels = 1847 + int(np.random.uniform(-25, 25))
+        st.session_state.sst     = round(28.4 + np.random.uniform(-.4, .4), 1)
+        st.session_state.data_tb = round(st.session_state.data_tb + 0.01, 2)
+        st.rerun()
+
+if auto_refresh:
+    time.sleep(refresh_rate)
+    st.session_state.vessels = 1847 + int(np.random.uniform(-25, 25))
+    st.session_state.sst     = round(28.4 + np.random.uniform(-.4, .4), 1)
+    st.session_state.data_tb = round(st.session_state.data_tb + 0.01, 2)
+    st.rerun()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FOOTER
