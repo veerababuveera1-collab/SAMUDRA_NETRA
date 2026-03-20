@@ -175,7 +175,7 @@ def slr_fig():
     fig.add_trace(go.Scatter(x=labels+labels[::-1],y=hi+lo[::-1],fill="toself",fillcolor="rgba(0,204,255,.07)",line=dict(color="rgba(0,0,0,0)"),showlegend=False))
     fig.add_trace(go.Scatter(x=labels,y=mean,name="Mean SLR",line=dict(color="#00CCFF",width=2),mode="lines+markers",marker=dict(color="#00CCFF",size=5)))
     # UPGRADE 4: red zone threshold line
-    fig.add_trace(go.Scatter(x=labels,y=thresh,name="⚠ Evacuation threshold",line=dict(color="#FF005599",width=1.5,dash="dash"),mode="lines"))
+    fig.add_trace(go.Scatter(x=labels,y=thresh,name="⚠ Evacuation threshold",line=dict(color="rgba(255,0,85,0.6)",width=1.5,dash="dash"),mode="lines"))
     fig.add_hrect(y0=45,y1=70,fillcolor="rgba(255,0,85,.06)",line_width=0)
     fig.update_layout(**PLOT_BG, height=260,
         title=dict(text="Sea Level Rise Forecast + Red Zone",font=dict(color="#00CCFF",size=12)),
