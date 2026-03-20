@@ -170,7 +170,7 @@ def fig_ocean_map():
 
     # Oil spill
     f.add_trace(go.Scatter(x=[73.2],y=[10.8],mode="markers",
-        marker=dict(color="rgba(255,0,85,.6)",size=20,symbol="circle",
+        marker=dict(color="rgba(255,0,85,.7)",size=16,symbol="circle",
                     line=dict(color="#FF0055",width=1.5)),
         name="Oil spill",text=["Oil spill — 14.2 km2"],
         hovertemplate="%{text}<extra></extra>"))
@@ -218,11 +218,11 @@ def fig_ocean_map():
         xaxis=dict(gridcolor="rgba(26,48,64,.8)",zerolinecolor="rgba(26,48,64,.8)",
                    linecolor="#1A3040",tickcolor="#1A3040",
                    tickfont=dict(color="#5A8FA8",size=10,family="Courier New"),
-                   title="Longitude",range=[44,101]),
+                   title="Longitude",range=[42,96]),
         yaxis=dict(gridcolor="rgba(26,48,64,.8)",zerolinecolor="rgba(26,48,64,.8)",
                    linecolor="#1A3040",tickcolor="#1A3040",
                    tickfont=dict(color="#5A8FA8",size=10,family="Courier New"),
-                   title="Latitude",range=[-6,31],scaleanchor="x",scaleratio=1),
+                   title="Latitude",range=[-2,28],scaleanchor="x",scaleratio=1),
         legend=dict(bgcolor="rgba(5,10,14,.85)",bordercolor="#1A3040",
                     borderwidth=1,font=dict(color="#5A8FA8",size=10)),
         annotations=[
@@ -360,9 +360,9 @@ def fig_models():
     f = go.Figure(go.Bar(y=names,x=pcts,orientation="h",marker_color=cols,marker_line_width=0,
         text=[f"{p:.0f}%" for p in pcts],textposition="inside",
         textfont=dict(color="#050A0E",family="Courier New",size=10)))
-    f.update_layout(**_PLOT, height=210,
+    f.update_layout(**_PLOT, height=260,
         title=dict(text="AI model activity",font=dict(color="#00FFAA",size=12)),
-        xaxis=dict(**_AX, ticksuffix="%", range=[0,107]),
+        xaxis=dict(**_AX, ticksuffix="%", range=[0,112]),
         yaxis=dict(**_AX))
     return f
 
@@ -408,7 +408,8 @@ def fig_slr_mini():
 # TACTICAL MAP
 # ─────────────────────────────────────────────────────────────────────────────
 def build_map():
-    m = folium.Map(location=[12.0,72.0], zoom_start=5, tiles="CartoDB dark_matter")
+    m = folium.Map(location=[13.0, 65.0], zoom_start=4, tiles="CartoDB dark_matter",
+               min_zoom=3, max_zoom=8)
     for c in AWRS:
         j = (np.random.uniform(-.15,.15), np.random.uniform(-.15,.15))
         popup = f"""<div style='background:#050A0E;color:#C8D8E8;font-family:monospace;padding:9px;
@@ -437,6 +438,8 @@ def build_map():
         fill_color="#FF0055",fill_opacity=.15,tooltip="Active oil spill — 14.2 km²").add_to(m)
     folium.Circle([12.0,72.0],radius=800_000,color="#00CCFF",fill=False,
         weight=1,dash_array="12 6",tooltip="India EEZ").add_to(m)
+    # Fit bounds to show ALL contacts including Gulf of Aden + Bay of Bengal
+    m.fit_bounds([[5, 44], [22, 90]])
     return m
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -493,7 +496,7 @@ with tabs[0]:
         st.markdown('<div class="sec-hdr">Live ocean map — Indian Ocean</div>',
                     unsafe_allow_html=True)
         if FOLIUM_OK:
-            st_folium(build_map(), width=None, height=510, returned_objects=[])
+            st_folium(build_map(), width=None, height=540, returned_objects=[])
         elif PLOTLY_OK:
             st.plotly_chart(fig_ocean_map(), use_container_width=True,
                             config={"displayModeBar": False})
